@@ -2,7 +2,7 @@ package by.antonov.ya_studio_finance_bot.commands;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
-import static util.Constants.DONT_KNOW_M;
+import static by.antonov.ya_studio_finance_bot.util.Constants.DONT_KNOW_M;
 
 public class UnknownCommand implements Command{
     @Override

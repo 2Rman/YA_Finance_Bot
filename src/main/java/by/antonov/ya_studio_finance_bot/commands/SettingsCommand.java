@@ -2,7 +2,7 @@ package by.antonov.ya_studio_finance_bot.commands;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
-import static util.Constants.SETTINGS_M;
+import static by.antonov.ya_studio_finance_bot.util.Constants.SETTINGS_M;
 
 public class SettingsCommand implements Command{
     @Override
