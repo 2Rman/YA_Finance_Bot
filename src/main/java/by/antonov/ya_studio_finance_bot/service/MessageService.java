@@ -1,10 +1,10 @@
 package by.antonov.ya_studio_finance_bot.service;
 
-import by.antonov.ya_studio_finance_bot.commands.HelpCommand;
-import by.antonov.ya_studio_finance_bot.commands.SettingsCommand;
-import by.antonov.ya_studio_finance_bot.commands.StartCommand;
-import by.antonov.ya_studio_finance_bot.commands.UnknownCommand;
+import by.antonov.ya_studio_finance_bot.commands.*;
+import by.antonov.ya_studio_finance_bot.config.BalanceData;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.checkerframework.checker.units.qual.K;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -15,6 +15,13 @@ import static by.antonov.ya_studio_finance_bot.util.Constants.*;
 @Service
 public class MessageService {
 
+    @Autowired
+    ObjectMapper objectMapper;
+    @Autowired
+    BalanceData balanceData;
+    @Autowired
+    DataLoadService dataLoadService;
+
     public SendMessage onUpdateReceived(Update update) {
 
         KeyboardFactory keyboardFactory = new KeyboardFactory();
@@ -24,6 +31,7 @@ public class MessageService {
             Message message = update.getMessage();
 
             sendMessage.setChatId(String.valueOf(message.getChatId()));
+            balanceData = dataLoadService.getBalanceData();
 
             if (message != null && message.hasText()) {
                 String messageText = message.getText();
@@ -41,6 +49,11 @@ public class MessageService {
                     case SETTINGS:
                         SettingsCommand settingsCommand = new SettingsCommand();
                         settingsCommand.execute(sendMessage);
+                        break;
+                    case BALANCE:
+//                        BalanceCommand balanceCommand = new BalanceCommand();
+//                        balanceCommand.execute(sendMessage);
+                        sendMessage.setText(balanceData.toString());
                         break;
                     default:
                         UnknownCommand unknownCommand = new UnknownCommand();
