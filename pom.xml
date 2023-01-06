@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>by.antonov</groupId>
 	<artifactId>ya_studio_finance_bot</artifactId>
-	<version>0.0.2</version>
+	<version>1.0.0</version>
 	<name>ya_studio_finance_bot</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>

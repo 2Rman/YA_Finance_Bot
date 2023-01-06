@@ -1,6 +1,5 @@
-package by.antonov.ya_studio_finance_bot.config;
+package by.antonov.ya_studio_finance_bot.util;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
@@ -8,16 +7,15 @@ import org.springframework.stereotype.Component;
 @Data
 public class BalanceData {
 
-    @JsonIgnore
-    private Long chatId;
-    private Long savings;
-    private Long debt;
-    private Long balance;
+    private String chatId;
+    private String savings;
+    private String debt;
+    private String balance;
 
     @Override
     public String toString() {
         return  "Накопления:\t" + savings +
                 "\nДолги:\t" + debt +
-                "\nБаланс:\t" + balance;
+                "\n\nБаланс:\t" + balance;
     }
 }
