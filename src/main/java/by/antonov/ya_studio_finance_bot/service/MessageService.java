@@ -1,19 +1,34 @@
 package by.antonov.ya_studio_finance_bot.service;
 
-import by.antonov.ya_studio_finance_bot.commands.HelpCommand;
-import by.antonov.ya_studio_finance_bot.commands.SettingsCommand;
-import by.antonov.ya_studio_finance_bot.commands.StartCommand;
-import by.antonov.ya_studio_finance_bot.commands.UnknownCommand;
-import org.checkerframework.checker.units.qual.K;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import static by.antonov.ya_studio_finance_bot.util.Constants.*;
 
 @Service
+@PropertySource("application.properties")
 public class MessageService {
+
+    @Autowired
+    ObjectMapper objectMapper;
+    private final CommandSwitcher commandSwitcher;
+
+    @Autowired
+    public MessageService(CommandSwitcher commandSwitcher) {
+        this.commandSwitcher = commandSwitcher;
+    }
+
+    @Value("${chat.id}")
+    String[] chatIds;
+
+    String previousCommand = "";
 
     public SendMessage onUpdateReceived(Update update) {
 
@@ -22,32 +37,47 @@ public class MessageService {
 
         if (update != null) {
             Message message = update.getMessage();
+            CallbackQuery callbackQuery = update.getCallbackQuery();
 
-            sendMessage.setChatId(String.valueOf(message.getChatId()));
-
-            if (message != null && message.hasText()) {
+            //Если СООБЩЕНИЕ != 0  И  ИМЕЕТ ТЕКСТ  И  ВЕРНЫЙ ЧАТ-id
+            if (message != null && message.hasText() && isChatIdCorrect(String.valueOf(message.getChatId()), chatIds)) {
+                sendMessage.setChatId(String.valueOf(message.getChatId()));
                 String messageText = message.getText();
 
-                switch (messageText) {
-                    case START:
-                        keyboardFactory.startButtons(sendMessage);
-                        StartCommand startCommand = new StartCommand();
-                        startCommand.execute(sendMessage);
-                        break;
-                    case HELP:
-                        HelpCommand helpCommand = new HelpCommand();
-                        helpCommand.execute(sendMessage);
-                        break;
-                    case SETTINGS:
-                        SettingsCommand settingsCommand = new SettingsCommand();
-                        settingsCommand.execute(sendMessage);
-                        break;
-                    default:
-                        UnknownCommand unknownCommand = new UnknownCommand();
-                        unknownCommand.execute(sendMessage);
-                }
+                commandSwitcher.switchHandlerCommand(keyboardFactory, sendMessage, messageText);
+            //ИНАЧЕ ЕСЛИ   СООБЩЕНИЕ ОТ КЛАВИАТУРЫ  И  ВЕРНЫЙ ЧАТ-id
+            } else if (callbackQuery != null && isChatIdCorrect(String.valueOf(callbackQuery.getMessage().getChatId()),chatIds)) {
+
+                sendMessage.setChatId(String.valueOf(callbackQuery.getMessage().getChatId()));
+                String messageText = callbackQuery.getData();
+
+                previousCommand = callbackQuery.getData();
+                commandSwitcher.switchHandlerCommand(keyboardFactory, sendMessage, messageText);
+            }
+
+            if (isCommandAction(previousCommand) && message != null) {
+                sendMessage.setText("Вносим правки на " + message.getText() + " рублей");
+                commandSwitcher.switchCommandExecutor(previousCommand, message.getText());
+
+            }
+
+            if (message != null) {
+                previousCommand = message.getText();
             }
         }
+
         return sendMessage;
+    }
+
+    //Проверка id-шников чатов разрешенных чатов
+    private boolean isChatIdCorrect(String currentChatId, String[] chatIdFromProps) {
+
+        return chatIdFromProps[0].equals(currentChatId) || chatIdFromProps[1].equals(currentChatId) || chatIdFromProps[2].equals(currentChatId);
+    }
+
+    //Проверка предыдущей команды на корректность
+    private boolean isCommandAction(String curCommand) {
+        return curCommand.equals(PLUS_SAVINGS_C) || curCommand.equals(MINUS_SAVINGS_C)
+                || curCommand.equals(BORROW_C) || curCommand.equals(LEND_C);
     }
 }
