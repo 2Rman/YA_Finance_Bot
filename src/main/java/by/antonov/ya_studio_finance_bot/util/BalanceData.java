@@ -15,7 +15,7 @@ public class BalanceData {
     @Override
     public String toString() {
         return  "Накопления:\t" + savings +
-                "\nДолги:\t" + debt +
+                "\nДолг:\t" + debt +
                 "\n\nБаланс:\t" + balance;
     }
 }

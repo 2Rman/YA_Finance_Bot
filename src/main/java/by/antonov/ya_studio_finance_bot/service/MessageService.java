@@ -19,10 +19,12 @@ public class MessageService {
     @Autowired
     ObjectMapper objectMapper;
     private final CommandSwitcher commandSwitcher;
+    private final DeleteMassagesService deleteMassagesService;
 
     @Autowired
-    public MessageService(CommandSwitcher commandSwitcher) {
+    public MessageService(CommandSwitcher commandSwitcher, DeleteMassagesService deleteMassagesService) {
         this.commandSwitcher = commandSwitcher;
+        this.deleteMassagesService = deleteMassagesService;
     }
 
     @Value("${chat.id}")
@@ -56,9 +58,9 @@ public class MessageService {
             }
 
             if (isCommandAction(previousCommand) && message != null) {
-                sendMessage.setText("Вносим правки на " + message.getText() + " рублей");
+                deleteMassagesService.deleteMessages(String.valueOf(message.getChatId()), message.getMessageId());
                 commandSwitcher.switchCommandExecutor(previousCommand, message.getText());
-
+                commandSwitcher.switchHandlerCommand(keyboardFactory, sendMessage, BALANCE_C);
             }
 
             if (message != null) {
