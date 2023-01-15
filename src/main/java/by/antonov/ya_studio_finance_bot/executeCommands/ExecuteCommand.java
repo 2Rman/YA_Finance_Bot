@@ -20,6 +20,7 @@ public class ExecuteCommand {
 
     public BalanceData borrow(BalanceData balanceData, String value) {
         balanceData.setDebt(String.valueOf(Double.parseDouble(balanceData.getDebt()) + Double.parseDouble(value)));
+        balanceData.setSavings(String.valueOf(Double.parseDouble(balanceData.getSavings()) - Double.parseDouble(value)));
         balanceData.setBalance(String.valueOf(Double.parseDouble(balanceData.getSavings()) + Double.parseDouble(balanceData.getDebt())));
         return balanceData;
     }

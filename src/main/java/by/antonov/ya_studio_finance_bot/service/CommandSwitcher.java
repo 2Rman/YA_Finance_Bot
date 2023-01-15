@@ -1,10 +1,12 @@
 package by.antonov.ya_studio_finance_bot.service;
 
-import by.antonov.ya_studio_finance_bot.executeCommands.*;
+import by.antonov.ya_studio_finance_bot.executeCommands.ExecuteCommand;
 import by.antonov.ya_studio_finance_bot.util.BalanceData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+
+import java.util.regex.Pattern;
 
 import static by.antonov.ya_studio_finance_bot.util.Constants.*;
 
@@ -61,9 +63,11 @@ public class CommandSwitcher {
      *  сделать валидацию вводимых данных */
     /**
      * Метод выполнения команды изменения сумм баланса
+     *
      * @param value значение, на которое необходимо изменить баланс, должен проходить валидацию
      */
     public void switchCommandExecutor(String command, String value) {
+
         switch (command) {
             case PLUS_SAVINGS_C:
                 balanceData = executeCommand.plusSavings(balanceData, value);
